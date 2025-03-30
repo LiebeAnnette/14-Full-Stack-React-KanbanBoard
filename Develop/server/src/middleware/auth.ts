@@ -1,10 +1,32 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
 interface JwtPayload {
   username: string;
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  // TODO: verify the token exists and add the user data to the request object
+// TODO [x]: verify the token exists and add the user data to the request object
+export const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ message: "No token provided" });
+    return; // 🔥 this is what TypeScript wants
+  }
+
+  try {
+    const secret = process.env.JWT_SECRET_KEY!;
+    const decoded = jwt.verify(token, secret) as JwtPayload;
+    (req as any).user = decoded;
+    next();
+    return; // 🔥 here too
+  } catch (err) {
+    res.status(403).json({ message: "Invalid or expired token" });
+    return; // 🔥 and again
+  }
 };
