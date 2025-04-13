@@ -16,7 +16,7 @@ export const authenticateToken = (
 
   if (!token) {
     res.status(401).json({ message: "No token provided" });
-    return; // 🔥 this is what TypeScript wants
+    return;
   }
 
   try {
@@ -24,9 +24,9 @@ export const authenticateToken = (
     const decoded = jwt.verify(token, secret) as JwtPayload;
     (req as any).user = decoded;
     next();
-    return; // 🔥 here too
+    return;
   } catch (err) {
     res.status(403).json({ message: "Invalid or expired token" });
-    return; // 🔥 and again
+    return;
   }
 };
